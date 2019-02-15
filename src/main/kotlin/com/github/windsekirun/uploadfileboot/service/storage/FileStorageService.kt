@@ -1,5 +1,6 @@
 package com.github.windsekirun.uploadfileboot.service.storage
 
+import com.github.windsekirun.uploadfileboot.exception.StorageException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
@@ -13,6 +14,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.stream.Stream
 
 @Service
@@ -27,22 +30,25 @@ class FileStorageService : StorageService {
         try {
             Files.createDirectories(rootLocation)
         } catch (e: IOException) {
-            throw IllegalStateException("Could not initialize storage", e)
+            throw StorageException("Could not initialize storage", e)
         }
     }
 
-    override fun store(file: MultipartFile) {
+    override fun store(file: MultipartFile): String {
         val fileName = StringUtils.cleanPath(file.originalFilename ?: "")
         try {
-            if (file.isEmpty) throw IllegalStateException("Failed to store empty file $fileName")
+            if (file.isEmpty) throw StorageException("Failed to store empty file $fileName")
 
             if (fileName.contentEquals("")) {
-                throw IllegalStateException("Cannot store file with relative path outside currnet directory $fileName")
+                throw StorageException("Cannot store file with relative path outside current directory $fileName")
             }
 
-            file.inputStream.use { Files.copy(it, this.rootLocation.resolve(fileName), StandardCopyOption.REPLACE_EXISTING) }
+            val date = SimpleDateFormat("yyyyMMdd").format(Date())
+            val dateFolder = Files.createDirectories(Paths.get("$location/$date"))
+            file.inputStream.use { Files.copy(it, dateFolder.resolve(fileName), StandardCopyOption.REPLACE_EXISTING) }
+            return "$date/$fileName"
         } catch (e: IOException) {
-            throw IllegalStateException("Failed to store file $fileName", e)
+            throw StorageException("Failed to store file $fileName", e)
         }
     }
 
@@ -52,7 +58,7 @@ class FileStorageService : StorageService {
                     .filter { it != this.rootLocation }
                     .map { this.rootLocation.relativize(it) }
         } catch (e: IOException) {
-            throw IllegalStateException("Failed to read stored files ${e.message}", e)
+            throw StorageException("Failed to read stored files ${e.message}", e)
         }
     }
 
@@ -71,10 +77,10 @@ class FileStorageService : StorageService {
             if (resource.exists() || resource.isReadable) {
                 return resource
             } else {
-                throw IllegalStateException("Could not read file $fileName")
+                throw StorageException("Could not read file $fileName")
             }
         } catch (e: MalformedURLException) {
-            throw IllegalStateException("Col")
+            throw StorageException("Could not read file $fileName")
         }
     }
 }

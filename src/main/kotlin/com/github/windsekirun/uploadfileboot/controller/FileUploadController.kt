@@ -3,6 +3,7 @@ package com.github.windsekirun.uploadfileboot.controller
 import com.github.windsekirun.uploadfileboot.Constants
 import com.github.windsekirun.uploadfileboot.Constants.RESPONSE_OK
 import com.github.windsekirun.uploadfileboot.data.Response
+import com.github.windsekirun.uploadfileboot.exception.StorageException
 import com.github.windsekirun.uploadfileboot.service.storage.StorageService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -21,7 +22,7 @@ class FileUploadController @Autowired constructor(private val storageService: St
 
     @GetMapping("/")
     @ResponseBody
-    fun listUploadFiles(): ResponseEntity<Response<MutableList<String>>> {
+    fun listFile(): ResponseEntity<Response<MutableList<String>>> {
         val list = storageService.loadAll()
                 .map { it.toAbsolutePath().toUri().path }
                 .collect(Collectors.toList())
@@ -36,16 +37,15 @@ class FileUploadController @Autowired constructor(private val storageService: St
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$fileName\"").body(file)
     }
 
-    @PostMapping("/uploadFile/")
+    @PostMapping("/uploadFile")
     @ResponseBody
     fun uploadFile(@RequestParam("file") file: MultipartFile): ResponseEntity<Response<String>> {
-        storageService.store(file)
-        val path = "$location/${file.originalFilename}"
+        val path = storageService.store(file)
         return ResponseEntity.accepted().body(Response(RESPONSE_OK, "OK", path))
     }
 
-    @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalState(exception: IllegalStateException): ResponseEntity<*> {
+    @ExceptionHandler(StorageException::class)
+    fun handleIllegalState(exception: StorageException): ResponseEntity<*> {
         return ResponseEntity.badRequest().body(Response(Constants.RESPONSE_FAILED_REQUEST, "Bad Request: ${exception.message}", null))
     }
 }
