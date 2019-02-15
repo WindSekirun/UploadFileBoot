@@ -7,15 +7,13 @@ plugins {
 apply plugin: 'io.spring.dependency-management'
 
 group = 'com.github.WindSekiurn'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 sourceCompatibility = '1.8'
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
 }
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 dependencies {
     // Spring-boot

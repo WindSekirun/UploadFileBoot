@@ -20,10 +20,5 @@ pipeline {
         sh './gradlew build'
       }
     }
-    stage('dockerize') {
-      steps {
-        sh 'docker build .'
-      }
-    }
   }
 }
