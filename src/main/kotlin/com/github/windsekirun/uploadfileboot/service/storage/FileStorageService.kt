@@ -13,7 +13,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.stream.Stream
 
@@ -37,12 +36,8 @@ class FileStorageService : StorageService {
         val fileName = "${UUID.randomUUID()}.$extension"
         try {
             if (file.isEmpty) throw StorageException("Failed to store empty file $fileName")
-
-            val date = SimpleDateFormat("yyyyMMdd").format(Date())
-            val dateFolder = Files.createDirectories(Paths.get("$location/$date"))
-
-            file.inputStream.use { Files.copy(it, dateFolder.resolve(fileName), StandardCopyOption.REPLACE_EXISTING) }
-            return "$date/$fileName"
+            file.inputStream.use { Files.copy(it, this.rootLocation.resolve(fileName), StandardCopyOption.REPLACE_EXISTING) }
+            return fileName
         } catch (e: IOException) {
             throw StorageException("Failed to store file $fileName", e)
         }

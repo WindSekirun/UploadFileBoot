@@ -12,7 +12,6 @@ class UploadFileBootApplication {
     @Bean
     fun init(storageService: StorageService): CommandLineRunner {
         return CommandLineRunner {
-            storageService.deleteAll()
             storageService.init()
         }
     }
