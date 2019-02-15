@@ -11,6 +11,8 @@ This project contains...
 * Jenkinsfile for Continous Delivery (NOT IMPLEMENTED)
 * Swagger 2 for API Document
 
+Published at PyxisPub, https://pyxispub.uzuki.live/?p=1506 (written in Korean)
+
 ## Build & Run
 
 ```docker-compose up -d --build```
