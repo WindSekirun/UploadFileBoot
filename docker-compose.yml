@@ -1,6 +1,6 @@
 version: '2.2'
 volumes:
-  upload_dir: {}
+  upload_files: {}
 
 services:
   uploadfileboot:
@@ -8,6 +8,6 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - upload_dir:/upload-dir
+      - upload_files:/files
     container_name: uploadfileboot
     restart: always
