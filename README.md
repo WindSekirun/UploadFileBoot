@@ -1,6 +1,6 @@
 # UploadFileBoot
 
-Microservice that serving file powered by Spring Boot 2.x and Kotlin
+Application that serving file powered by Spring Boot 2.x and Kotlin
 
 This project is demo project for publish **Tutorial of RESTful API with Spring Boot and Kotlin**, So DO NOT USE IN PRODUCTION.
 
