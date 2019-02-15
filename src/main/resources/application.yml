@@ -1,7 +1,6 @@
 service:
   location:
-    text: "upload-dir"
-
+    text: "files"
 
 ---
 

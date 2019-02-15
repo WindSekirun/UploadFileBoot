@@ -6,7 +6,6 @@ import com.github.windsekirun.uploadfileboot.data.Response
 import com.github.windsekirun.uploadfileboot.exception.StorageException
 import com.github.windsekirun.uploadfileboot.service.storage.StorageService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
@@ -17,9 +16,6 @@ import java.util.stream.Collectors
 
 @Controller
 class FileUploadController @Autowired constructor(private val storageService: StorageService) {
-    @Value("\${service.location.text}")
-    private lateinit var location: String
-
     @GetMapping("/")
     @ResponseBody
     fun listFile(): ResponseEntity<Response<MutableList<String>>> {
@@ -39,8 +35,8 @@ class FileUploadController @Autowired constructor(private val storageService: St
 
     @PostMapping("/uploadFile")
     @ResponseBody
-    fun uploadFile(@RequestParam("file") file: MultipartFile): ResponseEntity<Response<String>> {
-        val path = storageService.store(file)
+    fun uploadFile(@RequestParam("extension") extension: String, @RequestParam("file") file: MultipartFile): ResponseEntity<Response<String>> {
+        val path = storageService.store(file, extension)
         return ResponseEntity.accepted().body(Response(RESPONSE_OK, "OK", path))
     }
 

@@ -6,7 +6,6 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
 import org.springframework.util.FileSystemUtils
-import org.springframework.util.StringUtils
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
 import java.net.MalformedURLException
@@ -34,17 +33,14 @@ class FileStorageService : StorageService {
         }
     }
 
-    override fun store(file: MultipartFile): String {
-        val fileName = StringUtils.cleanPath(file.originalFilename ?: "")
+    override fun store(file: MultipartFile, extension: String): String {
+        val fileName = "${UUID.randomUUID()}.$extension"
         try {
             if (file.isEmpty) throw StorageException("Failed to store empty file $fileName")
 
-            if (fileName.contentEquals("")) {
-                throw StorageException("Cannot store file with relative path outside current directory $fileName")
-            }
-
             val date = SimpleDateFormat("yyyyMMdd").format(Date())
             val dateFolder = Files.createDirectories(Paths.get("$location/$date"))
+
             file.inputStream.use { Files.copy(it, dateFolder.resolve(fileName), StandardCopyOption.REPLACE_EXISTING) }
             return "$date/$fileName"
         } catch (e: IOException) {
