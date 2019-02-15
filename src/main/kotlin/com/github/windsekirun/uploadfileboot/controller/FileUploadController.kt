@@ -1,5 +1,6 @@
 package com.github.windsekirun.uploadfileboot.controller
 
+import com.github.windsekirun.uploadfileboot.Constants
 import com.github.windsekirun.uploadfileboot.Constants.RESPONSE_OK
 import com.github.windsekirun.uploadfileboot.data.Response
 import com.github.windsekirun.uploadfileboot.service.storage.StorageService
@@ -7,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 import java.util.stream.Collectors
 
 @Controller
@@ -24,12 +23,8 @@ class FileUploadController @Autowired constructor(private val storageService: St
     @ResponseBody
     fun listUploadFiles(): ResponseEntity<Response<MutableList<String>>> {
         val list = storageService.loadAll()
-                .map {
-                    MvcUriComponentsBuilder.fromMethodName(FileUploadController::class.java,
-                            "serveFile", it.fileName.toString()).build().toString()
-                }
+                .map { it.toAbsolutePath().toUri().path }
                 .collect(Collectors.toList())
-
 
         return ResponseEntity.ok().body(Response(RESPONSE_OK, "OK", list))
     }
@@ -51,6 +46,6 @@ class FileUploadController @Autowired constructor(private val storageService: St
 
     @ExceptionHandler(IllegalStateException::class)
     fun handleIllegalState(exception: IllegalStateException): ResponseEntity<*> {
-        return ResponseEntity("Error ${exception.message}", HttpStatus.BAD_REQUEST)
+        return ResponseEntity.badRequest().body(Response(Constants.RESPONSE_FAILED_REQUEST, "Bad Request: ${exception.message}", null))
     }
 }
