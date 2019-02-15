@@ -8,6 +8,6 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "upload_dir:/upload-dir"
+      - upload_dir:/upload-dir
     container_name: uploadfileboot
     restart: always
