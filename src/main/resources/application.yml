@@ -1,0 +1,12 @@
+service:
+  location:
+    text: "upload-dir"
+
+
+---
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 512MB
+      max-request-size: 512MB
