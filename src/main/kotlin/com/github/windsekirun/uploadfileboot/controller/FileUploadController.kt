@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.util.stream.Collectors
-import javax.activation.MimetypesFileTypeMap
 
 @RestController
 class FileUploadController @Autowired constructor(private val storageService: StorageService) {
@@ -45,10 +44,9 @@ class FileUploadController @Autowired constructor(private val storageService: St
     ])
     fun serveFile(@PathVariable fileName: String): ResponseEntity<Resource> {
         val resource = storageService.loadAsResource(fileName)
-        val contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(resource.file)
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$fileName\"")
-                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
                 .body(resource)
     }
 
@@ -59,7 +57,8 @@ class FileUploadController @Autowired constructor(private val storageService: St
         ApiResponse(code = 200, message = "Success to upload.", response = Response::class),
         ApiResponse(code = 400, message = "Bad request.", response = ErrorResponse::class)
     ])
-    fun uploadFile(@RequestParam("extension") extension: String, @RequestParam("file") file: MultipartFile): ResponseEntity<Response<String>> {
+    fun uploadFile(@RequestParam("extension") extension: String, @RequestParam("file") file: MultipartFile):
+            ResponseEntity<Response<String>> {
         val path = storageService.store(file, extension)
         val response = Response(RESPONSE_OK, "OK", path)
         return ResponseEntity.ok()
