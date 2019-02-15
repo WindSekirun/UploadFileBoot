@@ -1,6 +1,12 @@
+@Library('jenkins-shared-library')_
 pipeline {
   agent any
   stages {
+  stage ('start') {
+        steps {
+          sendNotifications 'STARTED'
+        }
+  }
     stage('environment') {
       parallel {
         stage('chmod') {
@@ -20,5 +26,10 @@ pipeline {
         sh './gradlew build'
       }
     }
+  }
+  post {
+      always {
+        sendNotifications currentBuild.result
+      }
   }
 }
