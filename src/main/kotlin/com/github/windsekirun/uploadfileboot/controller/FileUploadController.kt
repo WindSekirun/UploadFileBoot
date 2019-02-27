@@ -60,9 +60,9 @@ class FileUploadController @Autowired constructor(private val storageService: St
         ApiResponse(code = 200, message = "Success to upload.", response = Response::class),
         ApiResponse(code = 400, message = "Bad request.", response = ErrorResponse::class)
     ])
-    fun uploadFile(@RequestParam("file") file: MultipartFile, @RequestParam("extension") extension: String,
+    fun uploadFile(@RequestParam("file") file: MultipartFile,
                    @RequestParam("thumb", defaultValue = "0", required = false) thumb: String): ResponseEntity<Response<ResizeInfo>> {
-        val path = storageService.store(file, extension)
+        val path = storageService.store(file)
 
         val list = if (thumb == "1") {
             resizeService.resizeImage(path, WIDTH_LIST)

@@ -33,6 +33,9 @@ dependencies {
 
     // java-image-scaling
     implementation 'com.mortennobel:java-image-scaling:0.8.6'
+
+    // commons-io
+    implementation 'commons-io:commons-io:2.6'
 }
 
 tasks.withType(JavaCompile) {

@@ -1,6 +1,7 @@
 package com.github.windsekirun.uploadfileboot.service.storage
 
 import com.github.windsekirun.uploadfileboot.exception.StorageException
+import org.apache.commons.io.FilenameUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
@@ -32,8 +33,9 @@ class FileStorageService : StorageService {
         }
     }
 
-    override fun store(file: MultipartFile, extension: String): String {
-        val fileName = "${UUID.randomUUID()}.$extension"
+    override fun store(file: MultipartFile): String {
+        val ext = FilenameUtils.getExtension(file.originalFilename)
+        val fileName = "${UUID.randomUUID()}.$ext"
         try {
             if (file.isEmpty) throw StorageException("Failed to store empty file $fileName")
             file.inputStream.use { Files.copy(it, this.rootLocation.resolve(fileName), StandardCopyOption.REPLACE_EXISTING) }
