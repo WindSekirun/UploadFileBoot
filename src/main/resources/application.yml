@@ -9,3 +9,7 @@ spring:
     multipart:
       max-file-size: 512MB
       max-request-size: 512MB
+
+---
+server:
+  port: 8090

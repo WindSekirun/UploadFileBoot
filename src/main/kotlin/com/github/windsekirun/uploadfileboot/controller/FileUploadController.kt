@@ -2,8 +2,10 @@ package com.github.windsekirun.uploadfileboot.controller
 
 import com.github.windsekirun.uploadfileboot.Constants.RESPONSE_OK
 import com.github.windsekirun.uploadfileboot.data.ErrorResponse
+import com.github.windsekirun.uploadfileboot.data.ResizeInfo
 import com.github.windsekirun.uploadfileboot.data.Response
 import com.github.windsekirun.uploadfileboot.exception.StorageException
+import com.github.windsekirun.uploadfileboot.service.resize.ResizeService
 import com.github.windsekirun.uploadfileboot.service.storage.StorageService
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
@@ -17,7 +19,8 @@ import org.springframework.web.multipart.MultipartFile
 import java.util.stream.Collectors
 
 @RestController
-class FileUploadController @Autowired constructor(private val storageService: StorageService) {
+class FileUploadController @Autowired constructor(private val storageService: StorageService,
+                                                  private val resizeService: ResizeService) {
     @ResponseBody
     @GetMapping("/listFile")
     @ApiOperation("Get list of uploaded files")
@@ -57,10 +60,19 @@ class FileUploadController @Autowired constructor(private val storageService: St
         ApiResponse(code = 200, message = "Success to upload.", response = Response::class),
         ApiResponse(code = 400, message = "Bad request.", response = ErrorResponse::class)
     ])
-    fun uploadFile(@RequestParam("extension") extension: String, @RequestParam("file") file: MultipartFile):
-            ResponseEntity<Response<String>> {
+    fun uploadFile(@RequestParam("file") file: MultipartFile, @RequestParam("extension") extension: String,
+                   @RequestParam("thumb", defaultValue = "0", required = false) thumb: String): ResponseEntity<Response<ResizeInfo>> {
         val path = storageService.store(file, extension)
-        val response = Response(RESPONSE_OK, "OK", path)
+
+        val list = if (thumb == "1") {
+            resizeService.resizeImage(path, WIDTH_LIST)
+                    .mapIndexed { index, dest -> WIDTH_LIST[index] to dest.name }
+        } else {
+            listOf<Pair<Int, String>>()
+        }
+
+        val resizeInfo = ResizeInfo(!list.isEmpty(), path, list)
+        val response = Response(RESPONSE_OK, "OK", resizeInfo)
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(response)
@@ -71,5 +83,9 @@ class FileUploadController @Autowired constructor(private val storageService: St
         val response = ErrorResponse(message = "Bad request: ${exception.message}")
         return ResponseEntity.badRequest()
                 .body(response)
+    }
+
+    companion object {
+        private val WIDTH_LIST = listOf(100, 240, 480, 720, 1080)
     }
 }
