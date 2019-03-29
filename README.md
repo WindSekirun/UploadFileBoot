@@ -8,7 +8,7 @@ This project contains...
 
 * Spring Boot 2.1 + Kotlin 1.3
 * Dockerfile for dockerize service (Custom Dockerfile, docker-compose.yml)
-* Jenkinsfile for Continous Delivery (NOT IMPLEMENTED)
+* Jenkinsfile for Continous Delivery
 * Swagger 2 for API Document
 
 Published at PyxisPub, https://pyxispub.uzuki.live/?p=1506 (written in Korean)
