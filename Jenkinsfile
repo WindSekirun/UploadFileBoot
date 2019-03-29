@@ -2,7 +2,7 @@
 pipeline {
     environment {
         registry = "windsekirun/uploadfileboot-test"
-        registryCredential = 'dockerhub'
+        registryCredential = 'DockerHub'
     }
     agent any
     stages {
@@ -30,19 +30,19 @@ pipeline {
                 sh './gradlew build'
             }
         }
-        stage('dockerize') {
+        stage('docker image build') {
             steps {
                 sh 'docker build -t $registry:$BUILD_NUMBER .'
             }
         }
-        stage('deploy') {
+        stage('deploy docker image') {
             steps {
                 withDockerRegistry([ credentialsId: registryCredential, url: "" ]) {
                     sh 'docker push $registry:$BUILD_NUMBER'
                 }
             }
         }
-        stage('clean') {
+        stage('clean image') {
             steps{
                 sh "docker rmi $registry:$BUILD_NUMBER"
             }
