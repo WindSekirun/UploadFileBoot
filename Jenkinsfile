@@ -1,17 +1,17 @@
 @Library('jenkins-shared-library')_
 pipeline {
     environment {
-        registry = "windsekirun/uploadfileboot-test"
+        registry = "windsekirun/uploadfileboot"
         registryCredential = 'DockerHub'
     }
     agent any
     stages {
-        stage ('start') {
+        stage ('Start') {
             steps {
                 sendNotifications 'STARTED'
             }
         }
-        stage('environment') {
+        stage('Environment') {
             parallel {
                 stage('chmod') {
                     steps {
@@ -25,26 +25,26 @@ pipeline {
                 }
             }
         }
-        stage('build') {
+        stage('Build Jar') {
             steps {
                 sh './gradlew build'
             }
         }
-        stage('docker image build') {
+        stage('Build docker image') {
             steps {
-                sh 'docker build -t $registry:$BUILD_NUMBER .'
+                sh 'docker build -t $registry:latest .'
             }
         }
-        stage('deploy docker image') {
+        stage('Deploy docker image') {
             steps {
                 withDockerRegistry([ credentialsId: registryCredential, url: "" ]) {
-                    sh 'docker push $registry:$BUILD_NUMBER'
+                    sh 'docker push $registry:latest'
                 }
             }
         }
-        stage('clean image') {
+        stage('Clean docker image') {
             steps{
-                sh "docker rmi $registry:$BUILD_NUMBER"
+                sh "docker rmi $registry"
             }
         }
      }
