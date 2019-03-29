@@ -1,5 +1,10 @@
 @Library('jenkins-shared-library')_
 pipeline {
+    environment {
+        registry = "windsekirun/uploadfileboot-test"
+        registryCredential = 'dockerhub'
+        dockerImage = ''
+    }
     agent any
     stages {
         stage ('start') {
@@ -28,7 +33,21 @@ pipeline {
         }
         stage('dockerize') {
             steps {
-                sh 'docker build .'
+                dockerImage = docker.build registry + ":$BUILD_NUMBER"
+            }
+        }
+        stage('deploy') {
+            steps {
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('clean') {
+            steps{
+                sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
      }
