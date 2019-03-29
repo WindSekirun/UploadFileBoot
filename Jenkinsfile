@@ -1,40 +1,40 @@
 @Library('jenkins-shared-library')_
 pipeline {
-  agent any
-  stages {
-  stage ('start') {
-        steps {
-          sendNotifications 'STARTED'
+    agent any
+    stages {
+        stage ('start') {
+            steps {
+                sendNotifications 'STARTED'
+            }
         }
-  }
-    stage('environment') {
-      parallel {
-        stage('chmod') {
-          steps {
-            sh 'chmod 755 ./gradlew'
-          }
+        stage('environment') {
+            parallel {
+                stage('chmod') {
+                    steps {
+                        sh 'chmod 755 ./gradlew'
+                    }
+                }
+                stage('display') {
+                    steps {
+                        sh 'ls -la'
+                    }
+                }
+            }
         }
-        stage('display') {
-          steps {
-            sh 'ls -la'
-          }
+        stage('build') {
+            steps {
+                sh './gradlew build'
+            }
         }
-      }
+        stage('dockerize') {
+            steps {
+                sh 'docker build .'
+            }
+        }
+     }
+    post {
+        always {
+            sendNotifications currentBuild.result
+        }
     }
-    stage('build') {
-      steps {
-        sh './gradlew build'
-      }
-    }
-    stage('dockerize') {
-          steps {
-            sh 'docker build .'
-          }
-    }
-  }
-  post {
-      always {
-        sendNotifications currentBuild.result
-      }
-  }
 }
