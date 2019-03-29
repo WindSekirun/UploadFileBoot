@@ -3,7 +3,6 @@ pipeline {
     environment {
         registry = "windsekirun/uploadfileboot-test"
         registryCredential = 'dockerhub'
-        dockerImage = ''
     }
     agent any
     stages {
@@ -33,15 +32,13 @@ pipeline {
         }
         stage('dockerize') {
             steps {
-                dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                sh 'docker build -t $registry:$BUILD_NUMBER .'
             }
         }
         stage('deploy') {
             steps {
-                script {
-                    docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push()
-                    }
+                withDockerRegistry([ credentialsId: registryCredential, url: "" ]) {
+                    sh 'docker push $registry:$BUILD_NUMBER'
                 }
             }
         }
